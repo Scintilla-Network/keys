@@ -10,6 +10,7 @@ class Signer {
     /**
      * Create a signer
      * @param {PrivateKey|ExtendedPrivateKey|AddressKeyring} key - The key to sign with
+     * @param {string | null} moniker - The moniker of the signer
      */
     constructor(key, moniker = null) {
         if (!key) {
@@ -52,11 +53,15 @@ class Signer {
     /**
      * Create a signer from a public key
      * @param {PublicKey} publicKey - The public key to create the signer from
-     * @param {string} moniker - The moniker of the signer
+     * @param {string | null} moniker - The moniker of the signer
      * @returns {Signer} The signer
      */
     static fromPublicKey(publicKey, moniker = null) {
-        return new Signer(new PublicKey(publicKey), moniker);
+        if(!publicKey.getKey){
+            // If the public key doesn't have a getKey method, convert it to a PublicKey
+            throw new Error('Expected public key to have a getKey method');
+        }
+        return new Signer(publicKey, moniker);
     }
 
     /**
@@ -84,10 +89,11 @@ class Signer {
     /**
      * Sign a message
      * @param {SignableMessage} message - Message to sign
-     * @param {string} algorithm - Algorithm to use (default: secp256k1)
+     * @param {object} options - Options to use
+     * @param {string} options.algorithm - Algorithm to use (default: secp256k1)
      * @returns {[string, string]} Tuple of [signature, publicKey]
      */
-    sign(message, algorithm = Signer.ALGORITHMS.SECP256K1) {
+    sign(message, options) {
         if(this.isWatchOnly){
             throw new Error('Watch-only keys cannot sign messages');
         }
@@ -95,11 +101,19 @@ class Signer {
             throw new Error('Invalid message');
         }
 
-        if (algorithm !== Signer.ALGORITHMS.SECP256K1) {
-            throw new Error(`Unsupported algorithm: ${algorithm} (supported: ${Object.values(Signer.ALGORITHMS).join(', ')})`);
+        if(!options){
+            options = {
+                algorithm: Signer.ALGORITHMS.SECP256K1
+            };
+        }
+        if(!options.algorithm){
+            options.algorithm = Signer.ALGORITHMS.SECP256K1;
+        }
+        if (options.algorithm !== Signer.ALGORITHMS.SECP256K1) {
+            throw new Error(`Unsupported algorithm: ${options.algorithm} (supported: ${Object.values(Signer.ALGORITHMS).join(', ')})`);
         }
 
-        return message.sign(this, {algorithm});
+        return message.sign(this, options);
     }
 
     // signMessageWithSecp256k1(message) {

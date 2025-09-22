@@ -4,6 +4,11 @@ import utf8 from './utf8.js';
  * @module hex
  */
 const hex = {
+    /**
+     * Check if the input is a hex string
+     * @param {string | Uint8Array | ArrayBuffer} input - The input to check
+     * @returns {boolean} Whether the input is a hex string
+     */
     isHex: (input) => {
         if (input instanceof Uint8Array || input instanceof ArrayBuffer) {
             return false;
