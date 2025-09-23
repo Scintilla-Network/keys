@@ -4,11 +4,12 @@
 const uint8array = {
     /**
      * Convert Uint8Array to hex string
-     * @param {Uint8Array} uint8array - The Uint8Array to convert
+     * @param {Uint8Array} input - The Uint8Array to convert
      * @returns {string} The hex string
      */
     toHex: (input) => {
-        return input.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+        if(!input || input === null || input === undefined) return '';
+        return input.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '') || '';
     },
     /**
      * Convert hex string to Uint8Array
@@ -16,7 +17,8 @@ const uint8array = {
      * @returns {Uint8Array} The Uint8Array
      */
     fromHex: (hex) => {
-        return new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        if(!hex || hex === null || hex === undefined) return new Uint8Array();
+        return new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))) || new Uint8Array();
     },
     /**
      * Convert object to Uint8Array

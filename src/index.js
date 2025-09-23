@@ -20,11 +20,13 @@ export { default as PublicKey } from './primitives/PublicKey/PublicKey.js'
 import { bech32, bech32m } from './utils/bech32.js';
 import { escapeHTML, unescapeHTML } from './utils/escape.js';
 
+import base64 from './utils/base64.js';
 import hex from './utils/hex.js';
 import json from './utils/json.js';
 import moniker from './utils/moniker.js';
 import uint8array from './utils/uint8array.js';
 import utf8 from './utils/utf8.js';
+import varint from './utils/varint.js';
 
 const utils = {
     bech32,
@@ -33,11 +35,13 @@ const utils = {
     escapeHTML,
     unescapeHTML,
 
+    base64,
     hex,
     json,
     moniker,
     uint8array,
     utf8,
+    varint,
 };
 
 export {utils};
