@@ -1,6 +1,6 @@
 {
   "name": "@scintilla-network/keys",
-  "version": "1.0.0-beta.20",
+  "version": "1.0.0-beta.24",
   "description": "Keys for Scintilla",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
