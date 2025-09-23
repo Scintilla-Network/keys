@@ -9,6 +9,10 @@
       "import": "./src/index.js",
       "require": "./src/index.js",
       "default": "./src/index.js"
+    },
+    "./utils": {
+      "types": "./src/utils/index.d.ts",
+      "default": "./src/utils/index.js"
     }
   },
   "scripts": {
@@ -26,7 +30,9 @@
     "test:privatekey": "litest src/primitives/PrivateKey/PrivateKey.spec.js",
     "test:publickey": "litest src/primitives/PublicKey/PublicKey.spec.js",
     "test:address": "litest src/primitives/Address/Address.spec.js",
+    "test:uint8array": "vitest src/utils/uint8array.spec.js",
     "test:varint": "litest src/utils/varint.spec.js",
+    "test:varbigint": "vitest src/utils/varbigint.spec.js",
     "test:base64": "litest src/utils/base64.spec.js"
   },
   "repository": {

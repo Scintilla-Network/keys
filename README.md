@@ -230,6 +230,44 @@ const { bech32, bech32m, escapeHTML, isHexadecimal, sortObjectByKey } = utils;
 - `encrypt(message: SignableMessage, algorithm?: CIPHERS, nonce?: Uint8Array): string` - Encrypts message
 - `decrypt(encryptedMessage: string, algorithm?: CIPHERS): string` - Decrypts message
 
+
+#### Utils 
+
+### `varint`
+
+```typescript
+import { varint } from '@scintilla-network/keys/utils';
+const encoded = varint.encodeVarInt(100);
+console.log(encoded); // Uint8Array([100])
+const decoded = varint.decodeVarInt(encoded);
+console.log(decoded); // { value: 100, length: 1 }
+```
+
+0x00-0xFC (0-252): Single byte values
+0xFD + 2 bytes: 253-65535 (little-endian)
+0xFE + 4 bytes: 65536-4294967295 (little-endian)
+0xFF + 8 bytes: 4294967296-18446744073709551615 (little-endian)
+
+### `varbigint`
+
+```typescript
+import { varbigint } from '@scintilla-network/keys/utils';
+const encoded = varbigint.encodeVarBigInt(100);
+console.log(encoded); // Uint8Array([100])
+const decoded = varbigint.decodeVarBigInt(encoded);
+console.log(decoded); // { value: 100n, length: 1 }
+```
+
+0x00-0xFA (0-250): Single byte values
+0xFB + 2 bytes: 251-65535 (little-endian)
+0xFC + 4 bytes: 65536-4294967295 (little-endian)
+0xFD + 8 bytes: 4294967296-18446744073709551615 (little-endian)
+0xFE + 16 bytes: Up to 2^128-1 (little-endian)
+0xFF + 32 bytes: Up to 2^256-1 (little-endian)
+
+```typescript
+```
+
 ## Related Packages
 
 - [@scintilla-network/signatures](https://www.npmjs.com/package/@scintilla-network/signatures)

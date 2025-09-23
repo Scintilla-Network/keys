@@ -65,6 +65,32 @@ const uint8array = {
     toString: (uint8array) => {
         return new TextDecoder().decode(uint8array);
     },
+    /**
+         * Convert Uint8Array to bigint on 8 bytes
+         * @param {Uint8Array} arr - The Uint8Array to convert
+         * @returns {bigint} The bigint
+         */
+    toBigInt: (arr) => {
+        let bigint = BigInt(0);
+        for (let i = 0; i < 8; i++) {
+            bigint += BigInt(arr[i]) << BigInt(i * 8);
+        }
+        return bigint;
+    },
+    /**
+     * Convert 8 bytes bigint to Uint8Array 
+     * @param {bigint} bigint - The bigint to convert
+     * @returns {Uint8Array} The Uint8Array
+     */
+    fromBigInt: (bigint) => {
+        const array = new Uint8Array(8);
+        for (let i = 0; i < 8; i++) {
+            array[i] = Number((bigint >> BigInt(i * 8)) & 0xFFn);
+        }
+        return array;
+    },
+
+   
 }
 
 export default uint8array;

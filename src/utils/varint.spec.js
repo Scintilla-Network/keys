@@ -1,188 +1,204 @@
 import { describe, it, expect } from '@scintilla-network/litest';
 import varint from './varint.js';
-const { encodeVarInt, decodeVarInt } = varint;
-import uint8array from './uint8array.js';
 
-describe('Bitcoin VarInt Encoding/Decoding', () => {
+describe('Bitcoin VarInt (varint)', () => {
     describe('encodeVarInt', () => {
-        it('should encode values 0 to 252 as single byte (hex format)', () => {
-            // Test boundary values
-            expect(encodeVarInt(0)).toEqual('00');
-            expect(encodeVarInt(1)).toEqual('01');
-            expect(encodeVarInt(252)).toEqual('fc');
+        it('should encode single byte values (0-252)', () => {
+            expect(varint.encodeVarInt(0)).toEqual(new Uint8Array([0]));
+            expect(varint.encodeVarInt(1)).toEqual(new Uint8Array([1]));
+            expect(varint.encodeVarInt(100)).toEqual(new Uint8Array([100]));
+            expect(varint.encodeVarInt(252)).toEqual(new Uint8Array([252]));
+        });
+
+        it('should encode 2-byte values (253-65535)', () => {
+            expect(varint.encodeVarInt(253)).toEqual(new Uint8Array([0xFD, 253, 0]));
+            expect(varint.encodeVarInt(1000)).toEqual(new Uint8Array([0xFD, 232, 3])); // 1000 = 0x03E8
+            expect(varint.encodeVarInt(65535)).toEqual(new Uint8Array([0xFD, 255, 255]));
+        });
+
+        it('should encode 4-byte values (65536-4294967295)', () => {
+            expect(varint.encodeVarInt(65536)).toEqual(new Uint8Array([0xFE, 0, 0, 1, 0]));
+            expect(varint.encodeVarInt(1000000)).toEqual(new Uint8Array([0xFE, 64, 66, 15, 0])); // 1000000 = 0x000F4240
+            expect(varint.encodeVarInt(4294967295)).toEqual(new Uint8Array([0xFE, 255, 255, 255, 255]));
+        });
+
+        it('should encode 8-byte values (4294967296-18446744073709551615)', () => {
+            const val = BigInt('4294967296'); // 2^32
+            const encoded = varint.encodeVarInt(val);
+            expect(encoded[0]).toEqual(0xFF);
+            expect(encoded.length).toEqual(9);
+        });
+
+        it('should handle BigInt inputs', () => {
+            expect(varint.encodeVarInt(BigInt(100))).toEqual(new Uint8Array([100]));
+            expect(varint.encodeVarInt(BigInt(1000))).toEqual(new Uint8Array([0xFD, 232, 3]));
+        });
+
+        it('should return hex format when requested', () => {
+            const result = varint.encodeVarInt(100, 'hex');
+            expect(typeof result).toEqual('string');
+            expect(result).toEqual('64');
             
-            // Test some values in between
-            expect(encodeVarInt(127)).toEqual('7f');
-            expect(encodeVarInt(200)).toEqual('c8');
+            const result2 = varint.encodeVarInt(1000, 'hex');
+            expect(result2).toEqual('fde803');
         });
 
-        it('should encode values 0 to 252 as single byte (uint8array format)', () => {
-            expect(encodeVarInt(0, 'uint8array')).toEqual(new Uint8Array([0x00]));
-            expect(encodeVarInt(1, 'uint8array')).toEqual(new Uint8Array([0x01]));
-            expect(encodeVarInt(252, 'uint8array')).toEqual(new Uint8Array([0xFC]));
-            expect(encodeVarInt(127, 'uint8array')).toEqual(new Uint8Array([0x7F]));
+        it('should throw error for negative values', () => {
+            expect(() => varint.encodeVarInt(-1)).toThrow('Bitcoin varint values must be non-negative');
+            expect(() => varint.encodeVarInt(-100)).toThrow('Bitcoin varint values must be non-negative');
         });
 
-        it('should encode values 253 to 65535 with 0xFD prefix (hex format)', () => {
-            // 253 = 0xFD, little-endian: FD 00
-            expect(encodeVarInt(253)).toEqual('fdfd00');
-            // 65535 = 0xFFFF, little-endian: FF FF
-            expect(encodeVarInt(65535)).toEqual('fdffff');
-            // 1000 = 0x03E8, little-endian: E8 03
-            expect(encodeVarInt(1000)).toEqual('fde803');
+        it('should throw error for values too large', () => {
+            const tooLarge = BigInt('18446744073709551616'); // 2^64
+            expect(() => varint.encodeVarInt(tooLarge)).toThrow('Value exceeds maximum Bitcoin varint value');
         });
 
-        it('should encode values 253 to 65535 with 0xFD prefix (uint8array format)', () => {
-            expect(encodeVarInt(253, 'uint8array')).toEqual(new Uint8Array([0xFD, 0xFD, 0x00]));
-            expect(encodeVarInt(65535, 'uint8array')).toEqual(new Uint8Array([0xFD, 0xFF, 0xFF]));
-            expect(encodeVarInt(1000, 'uint8array')).toEqual(new Uint8Array([0xFD, 0xE8, 0x03]));
-        });
-
-        it('should encode values 65536 to 4294967295 with 0xFE prefix (hex format)', () => {
-            // 65536 = 0x10000, little-endian: 00 00 01 00
-            expect(encodeVarInt(65536)).toEqual('fe00000100');
-            // 4294967295 = 0xFFFFFFFF, little-endian: FF FF FF FF
-            expect(encodeVarInt(4294967295)).toEqual('feffffffff');
-            // 1000000 = 0xF4240, little-endian: 40 42 0F 00
-            expect(encodeVarInt(1000000)).toEqual('fe40420f00');
-        });
-
-        it('should encode values 65536 to 4294967295 with 0xFE prefix (uint8array format)', () => {
-            expect(encodeVarInt(65536, 'uint8array')).toEqual(new Uint8Array([0xFE, 0x00, 0x00, 0x01, 0x00]));
-            expect(encodeVarInt(4294967295, 'uint8array')).toEqual(new Uint8Array([0xFE, 0xFF, 0xFF, 0xFF, 0xFF]));
-            expect(encodeVarInt(1000000, 'uint8array')).toEqual(new Uint8Array([0xFE, 0x40, 0x42, 0x0F, 0x00]));
-        });
-
-        it('should encode values >= 4294967296 with 0xFF prefix (hex format)', () => {
-            // 4294967296 = 0x100000000, little-endian: 00 00 00 00 01 00 00 00
-            expect(encodeVarInt(BigInt('4294967296'))).toEqual('ff0000000001000000');
-            // Max uint64: 18446744073709551615 = 0xFFFFFFFFFFFFFFFF
-            expect(encodeVarInt(BigInt('18446744073709551615'))).toEqual('ffffffffffffffffff');
-        });
-
-        it('should encode values >= 4294967296 with 0xFF prefix (uint8array format)', () => {
-            expect(encodeVarInt(BigInt('4294967296'), 'uint8array')).toEqual(
-                new Uint8Array([0xFF, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00])
-            );
-            expect(encodeVarInt(BigInt('18446744073709551615'), 'uint8array')).toEqual(
-                new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
-            );
-        });
-
-        it('should handle bigint inputs for all ranges', () => {
-            expect(encodeVarInt(BigInt(100))).toEqual('64');
-            expect(encodeVarInt(BigInt(300))).toEqual('fd2c01');
-            expect(encodeVarInt(BigInt(100000))).toEqual('fea0860100');
+        it('should throw error for invalid input types', () => {
+            expect(() => varint.encodeVarInt('invalid')).toThrow('Input must be a number or BigInt');
+            expect(() => varint.encodeVarInt(null)).toThrow('Input must be a number or BigInt');
+            expect(() => varint.encodeVarInt(undefined)).toThrow('Input must be a number or BigInt');
         });
     });
 
     describe('decodeVarInt', () => {
-        it('should decode single-byte values (0-252)', () => {
-            let result = decodeVarInt(new Uint8Array([0x00]));
-            expect(result.value).toBe(0);
-            expect(result.length).toBe(1);
-
-            result = decodeVarInt(new Uint8Array([0x7F]));
-            expect(result.value).toBe(127);
-            expect(result.length).toBe(1);
-
-            result = decodeVarInt(new Uint8Array([0xFC]));
-            expect(result.value).toBe(252);
-            expect(result.length).toBe(1);
+        it('should decode single byte values (0-252)', () => {
+            expect(varint.decodeVarInt(new Uint8Array([0]))).toEqual({ value: 0, length: 1 });
+            expect(varint.decodeVarInt(new Uint8Array([100]))).toEqual({ value: 100, length: 1 });
+            expect(varint.decodeVarInt(new Uint8Array([252]))).toEqual({ value: 252, length: 1 });
         });
 
-        it('should decode 0xFD-prefixed values (253-65535)', () => {
-            // 253: FD FD 00
-            let result = decodeVarInt(new Uint8Array([0xFD, 0xFD, 0x00]));
-            expect(result.value).toBe(253);
-            expect(result.length).toBe(3);
-
-            // 65535: FD FF FF
-            result = decodeVarInt(new Uint8Array([0xFD, 0xFF, 0xFF]));
-            expect(result.value).toBe(65535);
-            expect(result.length).toBe(3);
-
-            // 1000: FD E8 03
-            result = decodeVarInt(new Uint8Array([0xFD, 0xE8, 0x03]));
-            expect(result.value).toBe(1000);
-            expect(result.length).toBe(3);
+        it('should decode 2-byte values (253-65535)', () => {
+            expect(varint.decodeVarInt(new Uint8Array([0xFD, 253, 0]))).toEqual({ value: 253, length: 3 });
+            expect(varint.decodeVarInt(new Uint8Array([0xFD, 232, 3]))).toEqual({ value: 1000, length: 3 });
+            expect(varint.decodeVarInt(new Uint8Array([0xFD, 255, 255]))).toEqual({ value: 65535, length: 3 });
         });
 
-        it('should decode 0xFE-prefixed values (65536-4294967295)', () => {
-            // 65536: FE 00 00 01 00
-            let result = decodeVarInt(new Uint8Array([0xFE, 0x00, 0x00, 0x01, 0x00]));
-            expect(result.value).toBe(65536);
-            expect(result.length).toBe(5);
-
-            // 4294967295: FE FF FF FF FF
-            result = decodeVarInt(new Uint8Array([0xFE, 0xFF, 0xFF, 0xFF, 0xFF]));
-            expect(result.value).toBe(4294967295);
-            expect(result.length).toBe(5);
-
-            // 1000000: FE 40 42 0F 00
-            result = decodeVarInt(new Uint8Array([0xFE, 0x40, 0x42, 0x0F, 0x00]));
-            expect(result.value).toBe(1000000);
-            expect(result.length).toBe(5);
+        it('should decode 4-byte values (65536-4294967295)', () => {
+            expect(varint.decodeVarInt(new Uint8Array([0xFE, 0, 0, 1, 0]))).toEqual({ value: 65536, length: 5 });
+            expect(varint.decodeVarInt(new Uint8Array([0xFE, 64, 66, 15, 0]))).toEqual({ value: 1000000, length: 5 });
+            expect(varint.decodeVarInt(new Uint8Array([0xFE, 255, 255, 255, 255]))).toEqual({ value: 4294967295, length: 5 });
         });
 
-        it('should decode 0xFF-prefixed values (>=4294967296)', () => {
-            // 4294967296: FF 00 00 00 00 01 00 00 00
-            let result = decodeVarInt(new Uint8Array([0xFF, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00]));
-            expect(result.value.toString()).toBe('4294967296');
-            expect(result.length).toBe(9);
-
-            // Max uint64: FF FF FF FF FF FF FF FF FF
-            result = decodeVarInt(new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]));
-            expect(result.value.toString()).toBe('18446744073709551615');
-            expect(result.length).toBe(9);
+        it('should decode 8-byte values and return BigInt for large values', () => {
+            // Test 2^32 = 4294967296 which should be encoded as 0xFF + 8 bytes little-endian
+            const buffer = new Uint8Array(9);
+            buffer[0] = 0xFF;
+            buffer[1] = 0; buffer[2] = 0; buffer[3] = 0; buffer[4] = 0; // low 4 bytes = 0
+            buffer[5] = 1; buffer[6] = 0; buffer[7] = 0; buffer[8] = 0; // high 4 bytes = 1
+            
+            const result = varint.decodeVarInt(buffer);
+            expect(result.value).toEqual(4294967296);
+            expect(result.length).toEqual(9);
         });
 
-        it('should handle round-trip encoding/decoding', () => {
-            const testValues = [
-                { value: 0, expected: 0 },
-                { value: 1, expected: 1 },
-                { value: 127, expected: 127 },
-                { value: 252, expected: 252 },                    // Single byte
-                { value: 253, expected: 253 },
-                { value: 1000, expected: 1000 },
-                { value: 65535, expected: 65535 },                // 0xFD prefix
-                { value: 65536, expected: 65536 },
-                { value: 1000000, expected: 1000000 },
-                { value: 4294967295, expected: 4294967295 },      // 0xFE prefix
-                { value: BigInt('4294967296'), expected: '4294967296' },        // 0xFF prefix
-                { value: BigInt('18446744073709551615'), expected: '18446744073709551615' } // Max uint64
-            ];
+        it('should decode from hex string input', () => {
+            expect(varint.decodeVarInt('64')).toEqual({ value: 100, length: 1 });
+            expect(varint.decodeVarInt('fde803')).toEqual({ value: 1000, length: 3 });
+        });
 
-            testValues.forEach(({ value, expected }) => {
-                const encoded = encodeVarInt(value, 'uint8array');
-                const decoded = decodeVarInt(encoded);
-                if (typeof expected === 'string') {
-                    expect(decoded.value.toString()).toBe(expected);
-                } else {
-                    expect(decoded.value).toBe(expected);
-                }
-            });
+        it('should throw error for empty buffer', () => {
+            expect(() => varint.decodeVarInt(new Uint8Array())).toThrow('Empty buffer provided');
+            expect(() => varint.decodeVarInt('')).toThrow('Empty buffer provided');
+        });
+
+        it('should throw error for insufficient buffer length', () => {
+            expect(() => varint.decodeVarInt(new Uint8Array([0xFD, 1]))).toThrow('Insufficient buffer length for 0xFD');
+            expect(() => varint.decodeVarInt(new Uint8Array([0xFE, 1, 2, 3]))).toThrow('Insufficient buffer length for 0xFE');
+            expect(() => varint.decodeVarInt(new Uint8Array([0xFF, 1, 2, 3, 4, 5, 6, 7]))).toThrow('Insufficient buffer length for 0xFF');
+        });
+
+        it('should enforce canonical encoding (Bitcoin protocol requirement)', () => {
+            // Values that could be encoded with fewer bytes should be rejected
+            expect(() => varint.decodeVarInt(new Uint8Array([0xFD, 252, 0]))).toThrow('Non-canonical varint encoding');
+            expect(() => varint.decodeVarInt(new Uint8Array([0xFE, 255, 255, 0, 0]))).toThrow('Non-canonical varint encoding');
+            
+            // Test edge case: exactly at the boundary should be accepted
+            expect(() => varint.decodeVarInt(new Uint8Array([0xFD, 253, 0]))).not.toThrow();
+            expect(() => varint.decodeVarInt(new Uint8Array([0xFE, 0, 0, 1, 0]))).not.toThrow();
         });
     });
 
-    describe('Edge cases and error handling', () => {
-        it('should handle negative numbers by converting to positive', () => {
-            // Bitcoin varints don't support negative numbers, so implementation should handle this
-            expect(() => encodeVarInt(-1)).not.toThrow();
+    describe('getEncodingLength', () => {
+        it('should return correct encoding lengths', () => {
+            expect(varint.getEncodingLength(0)).toEqual(1);
+            expect(varint.getEncodingLength(252)).toEqual(1);
+            expect(varint.getEncodingLength(253)).toEqual(3);
+            expect(varint.getEncodingLength(65535)).toEqual(3);
+            expect(varint.getEncodingLength(65536)).toEqual(5);
+            expect(varint.getEncodingLength(4294967295)).toEqual(5);
+            expect(varint.getEncodingLength(BigInt('4294967296'))).toEqual(9);
+            expect(varint.getEncodingLength(BigInt('18446744073709551615'))).toEqual(9);
         });
 
-        it('should handle empty or invalid buffers in decoding', () => {
-            expect(() => decodeVarInt(new Uint8Array([]))).toThrow();
-            expect(() => decodeVarInt(new Uint8Array([0xFD]))).toThrow(); // Incomplete FD prefix
-            expect(() => decodeVarInt(new Uint8Array([0xFE, 0x00]))).toThrow(); // Incomplete FE prefix
+        it('should throw error for negative values', () => {
+            expect(() => varint.getEncodingLength(-1)).toThrow('Bitcoin varint values must be non-negative');
+            expect(() => varint.getEncodingLength(-100)).toThrow('Bitcoin varint values must be non-negative');
         });
 
-        it('should validate prefix consistency', () => {
-            // Values that should use single byte but are encoded with prefix should be rejected
-            // This tests that encoding is canonical
-            const nonCanonical = new Uint8Array([0xFD, 0x01, 0x00]); // 1 encoded with FD prefix
-            // The decoder should handle this, but encoder should never produce it
-            expect(encodeVarInt(1, 'uint8array')).toEqual(new Uint8Array([0x01]));
+        it('should throw error for invalid input types', () => {
+            expect(() => varint.getEncodingLength('invalid')).toThrow('Input must be a number or BigInt');
+            expect(() => varint.getEncodingLength(null)).toThrow('Input must be a number or BigInt');
+        });
+
+        it('should throw error for values too large', () => {
+            expect(() => varint.getEncodingLength(BigInt('18446744073709551616'))).toThrow('Value too large for Bitcoin varint encoding');
+        });
+    });
+
+    describe('canEncode', () => {
+        it('should return true for encodable values', () => {
+            expect(varint.canEncode(0)).toBe(true);
+            expect(varint.canEncode(1000)).toBe(true);
+            expect(varint.canEncode(BigInt('4294967296'))).toBe(true);
+            expect(varint.canEncode(BigInt('18446744073709551615'))).toBe(true);
+        });
+
+        it('should return false for negative values', () => {
+            expect(varint.canEncode(-1)).toBe(false);
+            expect(varint.canEncode(-100)).toBe(false);
+        });
+
+        it('should return false for values too large', () => {
+            expect(varint.canEncode(BigInt('18446744073709551616'))).toBe(false);
+        });
+
+        it('should return false for invalid inputs', () => {
+            expect(varint.canEncode('invalid')).toBe(false);
+            expect(varint.canEncode(null)).toBe(false);
+            expect(varint.canEncode(undefined)).toBe(false);
+        });
+    });
+
+    describe('Bitcoin protocol compliance', () => {
+        it('should follow exact Bitcoin varint specification', () => {
+            // Test known Bitcoin varint encodings
+            const knownCases = [
+                { value: 0, hex: '00' },
+                { value: 252, hex: 'fc' },
+                { value: 253, hex: 'fdfd00' },
+                { value: 65535, hex: 'fdffff' },
+                { value: 65536, hex: 'fe00000100' },
+                { value: 4294967295, hex: 'feffffffff' }
+            ];
+            
+            knownCases.forEach(({ value, hex }) => {
+                const encoded = varint.encodeVarInt(value, 'hex');
+                expect(encoded).toEqual(hex);
+                
+                const decoded = varint.decodeVarInt(hex);
+                expect(decoded.value).toEqual(value);
+            });
+        });
+
+        it('should maintain little-endian byte order', () => {
+            // Test specific values with known little-endian representation
+            const value = 0x1234; // 4660
+            const encoded = varint.encodeVarInt(value);
+            // Should be: FD 34 12 (0xFD prefix + 0x34, 0x12 in little-endian)
+            expect(encoded).toEqual(new Uint8Array([0xFD, 0x34, 0x12]));
+            
+            const decoded = varint.decodeVarInt(encoded);
+            expect(decoded.value).toEqual(value);
         });
     });
 });

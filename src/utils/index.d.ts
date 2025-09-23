@@ -15,13 +15,15 @@ export interface Utils {
         fromWords(words: number[]): number[];
         fromWordsUnsafe(words: number[]): number[] | undefined;
     };
-    escapeHTML(str: string): string;
-    unescapeHTML(str: string): string;
+    escape: {
+        escapeHTML(str: string): string;
+        unescapeHTML(str: string): string;
+    };
     hex: {
         isHex(input: string | Uint8Array | ArrayBuffer): boolean;
         toUint8Array(input: string | Uint8Array | ArrayBuffer): Uint8Array;
-        fromUint8Array(input: string | Uint8Array | ArrayBuffer): string;
-        toString(input: string): string;
+        fromUint8Array(input: string | Uint8Array | ArrayBuffer): string | undefined;
+        toString(input: string | Uint8Array | ArrayBuffer): string | undefined;
     };
     json: {
         stringify(obj: any): string;
@@ -35,12 +37,12 @@ export interface Utils {
         deriveMonikerPath(moniker: string, hardened?: boolean): { path: string; monikerAsNumber: number; checksumAsNumber: number; truncatedHash: Uint8Array; fullHash: Uint8Array };
     };
     uint8array: {
-        toHex(arr: Uint8Array): string;
+        toHex(arr: Uint8Array): string | undefined;
         fromHex(hex: string): Uint8Array;
         fromObject(obj: any): Uint8Array;
         toObject(arr: Uint8Array): any;
         fromString(str: string): Uint8Array;
-        toString(arr: Uint8Array): string;
+        toString(arr: Uint8Array): string | undefined;
     };
     utf8: {
         toHex(str: string): string;

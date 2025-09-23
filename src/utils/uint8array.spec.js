@@ -1,4 +1,5 @@
-import { describe, it, expect } from '@scintilla-network/litest';
+// import { describe, it, expect } from '@scintilla-network/litest';
+import { describe, it, expect } from 'vitest';
 import uint8array from './uint8array.js';
 
 describe('uint8array', () => {
@@ -45,5 +46,15 @@ describe('uint8array', () => {
         const array = new Uint8Array([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]);
         const string = uint8array.toString(array);
         expect(string).toBe('Hello, World!');
+    });
+    it('should convert bigint to uint8array', () => {
+        const bigint = 18446744073709551615n;
+        const array = uint8array.fromBigInt(bigint);
+        expect(array).toEqual(new Uint8Array([255, 255, 255, 255, 255, 255, 255, 255]));
+    });
+    it('should convert uint8array to bigint', () => {
+        const array = new Uint8Array([255, 255, 255, 255, 255, 255, 255, 255]);
+        const bigint = uint8array.toBigInt(array);
+        expect(bigint).toBe(18446744073709551615n);
     });
 });
