@@ -17,7 +17,7 @@ const varbigint = {
     encodeVarBigInt: (num, format = 'uint8array') => {
         // Only accept BigInt inputs
         if (typeof num !== 'bigint') {
-            throw new Error('Input must be a BigInt. Use BigInt() to convert numbers.');
+            throw new Error(`Input must be a BigInt. Use BigInt() to convert numbers. ${num} is ${typeof num}`);
         }
 
         // Handle negative numbers by converting to positive

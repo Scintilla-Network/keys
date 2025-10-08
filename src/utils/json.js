@@ -37,11 +37,17 @@ const json = {
             };
         }
         return JSON.parse(input, (key, value) => {
+            if (typeof value === 'string' && /^[0-9a-fA-F]+$/.test(value) && value.length === 64) {
+                if(options.shouldUint8Array){
+                    return uint8array.fromHex(value);
+                }
+                return value;
+            }
             if (options.shouldBigInt && typeof value === 'string' && /^[0-9]+$/.test(value)) {
                 return BigInt(value);
             }
             if (options.shouldUint8Array && (value instanceof Uint8Array || value instanceof ArrayBuffer)) {
-                return uint8array.fromHex(value);
+                return value;
             }
             return value;
         });

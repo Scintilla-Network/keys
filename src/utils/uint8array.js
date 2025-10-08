@@ -8,6 +8,7 @@ const uint8array = {
      * @returns {string} The hex string
      */
     toHex: (input) => {
+        if(typeof input === 'string') return input;
         if(!input || input === null || input === undefined) return '';
         return input.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '') || '';
     },
@@ -17,6 +18,8 @@ const uint8array = {
      * @returns {Uint8Array} The Uint8Array
      */
     fromHex: (hex) => {
+        // @ts-ignore
+        if(hex instanceof Uint8Array) return hex;
         if(!hex || hex === null || hex === undefined) return new Uint8Array();
         return new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))) || new Uint8Array();
     },
@@ -89,6 +92,15 @@ const uint8array = {
         }
         return array;
     },
+    /**
+     * Convert Uint8Array to string
+     * @param {Uint8Array} array - The Uint8Array to convert
+     * @returns {string} The string
+     */
+    stringify: (array) => {
+        // We want the bytes number 8 representation as a string (e.g: [127, 0, 0, 0, 0, 0, 0, 0])
+        return array.map(byte => byte.toString()).join(',');
+    }
 
    
 }

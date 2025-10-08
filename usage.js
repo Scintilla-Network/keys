@@ -5,7 +5,8 @@ let mnemonic = 'test test test test test test test test test test test junk';
 let seedKeyring = SeedKeyring.fromMnemonic(mnemonic);
 let chainKeyring = seedKeyring.getChainKeyring();
 let accountKeyring = chainKeyring.getAccountKeyring(0);
-let addressKeyring = accountKeyring.getAddressKeyring();
+let personaKeyring = accountKeyring.getPersonaKeyring('sct.alice');
+let addressKeyring = personaKeyring.getAddressKeyring();
 console.log(addressKeyring.getAddress().toString());
 
 const signer = new Signer(addressKeyring.getPrivateKey());
@@ -18,3 +19,5 @@ console.log('initial address', address.toString());
 
 const isValid2 = message.verify(signature, publicKey);
 console.log({messageIsValid: isValid, messageIsValid2: isValid2});
+
+console.log(signer.toAddress().toString());

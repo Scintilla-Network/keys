@@ -48,6 +48,7 @@ export interface Utils {
         toHex(str: string): string;
         toUint8Array(str: string): Uint8Array;
         fromHex(hex: string): string;
+        fromUint8Array(uint8Array: Uint8Array): string;
         isUtf8(input: string | Uint8Array | ArrayBuffer): boolean;
     };
     varint: {

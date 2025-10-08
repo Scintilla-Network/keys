@@ -20,6 +20,15 @@ const utf8 = {
     toUint8Array: (message) => {
         return new Uint8Array(new TextEncoder().encode(message));
     },
+
+    /**
+     * Convert Uint8Array to UTF-8 string
+     * @param {Uint8Array} uint8Array - The Uint8Array to convert
+     * @returns {string} The UTF-8 string
+     */
+    fromUint8Array: (uint8Array) => {
+        return new TextDecoder().decode(uint8Array);
+    },
     /**
      * Convert hex string to Uint8Array
      * @param {string} hex - The hex string to convert
