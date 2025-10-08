@@ -1,6 +1,6 @@
 {
   "name": "@scintilla-network/keys",
-  "version": "1.0.0-beta.24",
+  "version": "1.0.0",
   "description": "Keys for Scintilla",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -33,7 +33,8 @@
     "test:uint8array": "vitest src/utils/uint8array.spec.js",
     "test:varint": "litest src/utils/varint.spec.js",
     "test:varbigint": "vitest src/utils/varbigint.spec.js",
-    "test:base64": "litest src/utils/base64.spec.js"
+    "test:base64": "litest src/utils/base64.spec.js",
+    "test:json": "litest src/utils/json.spec.js"
   },
   "repository": {
       "type": "git",
