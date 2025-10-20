@@ -1,7 +1,7 @@
 {
   "name": "@scintilla-network/keys",
-  "version": "1.0.0",
-  "description": "Keys for Scintilla",
+  "version": "1.1.0",
+  "description": "Key management and derivation library for Scintilla Network",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "exports": {
