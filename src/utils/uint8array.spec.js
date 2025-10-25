@@ -1,5 +1,4 @@
-// import { describe, it, expect } from '@scintilla-network/litest';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@scintilla-network/litest';
 import uint8array from './uint8array.js';
 
 describe('uint8array', () => {
@@ -56,5 +55,15 @@ describe('uint8array', () => {
         const array = new Uint8Array([255, 255, 255, 255, 255, 255, 255, 255]);
         const bigint = uint8array.toBigInt(array);
         expect(bigint).toBe(18446744073709551615n);
+    });
+    it('should test for isUint8Array', () => {
+        expect(uint8array.isUint8Array(new Uint8Array())).toBe(true);
+        expect(uint8array.isUint8Array(new ArrayBuffer(8))).toBe(false);
+        expect(uint8array.isUint8Array(new ArrayBuffer(8))).toBe(false);
+        expect(uint8array.isUint8Array('test')).toBe(false);
+        expect(uint8array.isUint8Array(123)).toBe(false);
+        expect(uint8array.isUint8Array({})).toBe(false);
+        expect(uint8array.isUint8Array(null)).toBe(false);
+        expect(uint8array.isUint8Array(undefined)).toBe(false);
     });
 });

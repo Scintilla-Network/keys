@@ -3,6 +3,14 @@
  */
 const uint8array = {
     /**
+     * Check if the input is a Uint8Array
+     * @param {any} input - The input to check
+     * @returns {boolean} Whether the input is a Uint8Array
+     */
+    isUint8Array: (input) => {
+        return input instanceof Uint8Array;
+    },
+    /**
      * Convert Uint8Array to hex string
      * @param {Uint8Array} input - The Uint8Array to convert
      * @returns {string} The hex string
