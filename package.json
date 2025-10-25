@@ -1,6 +1,6 @@
 {
   "name": "@scintilla-network/keys",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Key management and derivation library for Scintilla Network",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -32,9 +32,9 @@
     "test:privatekey": "litest src/primitives/PrivateKey/PrivateKey.spec.js",
     "test:publickey": "litest src/primitives/PublicKey/PublicKey.spec.js",
     "test:address": "litest src/primitives/Address/Address.spec.js",
-    "test:uint8array": "vitest src/utils/uint8array.spec.js",
+    "test:uint8array": "litest src/utils/uint8array.spec.js",
     "test:varint": "litest src/utils/varint.spec.js",
-    "test:varbigint": "vitest src/utils/varbigint.spec.js",
+    "test:varbigint": "litest src/utils/varbigint.spec.js",
     "test:base64": "litest src/utils/base64.spec.js",
     "test:json": "litest src/utils/json.spec.js"
   },
