@@ -231,41 +231,166 @@ const { bech32, bech32m, escapeHTML, isHexadecimal, sortObjectByKey } = utils;
 - `decrypt(encryptedMessage: string, algorithm?: CIPHERS): string` - Decrypts message
 
 
-#### Utils 
+## Utils 
+
+
+### `base64`
+
+```js
+import { base64 } from '@scintilla-network/keys/utils';
+```
+
+- `toUint8Array(base64String: string): Uint8Array` - Converts base64 string to Uint8Array
+```js
+base64.toUint8Array('SGVsbG8sIFdvcmxkIQ=='); // Uint8Array([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33])
+```
+
+- `toHex(base64String: string): string` - Converts base64 string to hex string
+```js
+base64.toHex('SGVsbG8sIFdvcmxkIQ=='); // '48656c6c6f2c20576f726c6421'
+```
+
+- `toString(base64String: string): string` - Converts base64 string to string
+```js
+base64.toString('SGVsbG8sIFdvcmxkIQ=='); // 'Hello, World!'
+```
+
+- `fromUint8Array(bytes: Uint8Array): string` - Converts Uint8Array to base64 string
+```js
+base64.fromUint8Array(new Uint8Array([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33])); // 'SGVsbG8sIFdvcmxkIQ=='
+```
+- `fromHex(hex: string): string` - Converts hex string to base64 string
+```js
+base64.fromHex('48656c6c6f2c20576f726c6421'); // 'SGVsbG8sIFdvcmxkIQ=='
+```
+- `fromString(string: string): string` - Converts string to base64 string
+```js
+base64.fromString('Hello, World!'); // 'SGVsbG8sIFdvcmxkIQ=='
+```
+
+### `bech32` / `bech32m`
+```js
+import { bech32, bech32m } from '@scintilla-network/keys/utils';
+```
+
+- `encode(prefix: string, words: number[], limit?: number): string` - Encodes words to bech32 string
+- `decode(str: string, limit?: number): {prefix: string, words: number[]}` - Decodes bech32 string to words
+- `decodeUnsafe(str: string, limit?: number): {prefix: string, words: number[]} | undefined` - Decodes bech32 string to words safely
+- `toWords(bytes: number[]): number[]` - Converts bytes to words
+- `fromWords(words: number[]): number[]` - Converts words to bytes
+- `fromWordsUnsafe(words: number[]): number[] | undefined` - Converts words to bytes safely
+
+### `escapeHTML` / `unescapeHTML`
+```js
+import { escapeHTML, unescapeHTML } from '@scintilla-network/keys/utils';
+```
+
+- `escapeHTML(str: string): string` - Escapes HTML characters
+- `unescapeHTML(str: string): string` - Unescapes HTML characters
+
+### `hex`
+```js
+import { hex } from '@scintilla-network/keys/utils';
+```
+
+- `isHex(hex: string): boolean` - Checks if hex string is valid
+- `toUint8Array(hex: string): Uint8Array` - Converts hex string to Uint8Array
+- `fromUint8Array(bytes: Uint8Array): string` - Converts Uint8Array to hex string
+- `toHex(bytes: Uint8Array): string` - Converts Uint8Array to hex string
+- `toString(hex: string): string` - Converts hex string to string
+
+### `json`
+```js
+import { json } from '@scintilla-network/keys/utils';
+```
+
+- `stringify(obj: any): string` - Stringifies object
+- `parse(str: string, options?: { shouldBigInt?: boolean; shouldUint8Array?: boolean }): any` - Parses JSON string
+- `sortObjectByKey(obj: any): any` - Sorts object by key
+- `sortedJsonByKeyStringify(obj: any): string` - Sorts object by key and stringifies object
+
+### `moniker`
+
+```js
+import { moniker } from '@scintilla-network/keys/utils';
+```
+
+- `validate(moniker: string): boolean` - Validates moniker
+- `deriveSharedMonikerPath(moniker1: string, moniker2: string, hardened?: boolean): { path: string; moniker1AsNumber: number; moniker2AsNumber: number; truncatedHash: Uint8Array; fullHash: Uint8Array }` - Derives shared moniker path
+- `deriveMonikerPath(moniker: string, hardened?: boolean): { path: string; monikerAsNumber: number; checksumAsNumber: number; truncatedHash: Uint8Array; fullHash: Uint8Array }` - Derives moniker path
+
+### `uint8array`
+```js
+import { uint8array } from '@scintilla-network/keys/utils';
+```
+
+- `isUint8Array(input: any): boolean` - Checks if input is a Uint8Array
+- `toHex(bytes: Uint8Array): string` - Converts Uint8Array to hex string
+- `fromHex(hex: string): Uint8Array` - Converts hex string to Uint8Array
+- `fromObject(obj: any): Uint8Array` - Converts object to Uint8Array
+- `toObject(bytes: Uint8Array): any` - Converts Uint8Array to object
+- `fromString(str: string): Uint8Array` - Converts string to Uint8Array
+- `toString(bytes: Uint8Array): string` - Converts Uint8Array to string
+- `toBigInt(bytes: Uint8Array): bigint` - Converts Uint8Array to bigint
+- `fromBigInt(bigint: bigint): Uint8Array` - Converts bigint to Uint8Array
+- `stringify(bytes: Uint8Array): string` - Converts Uint8Array to string
+
+### `utf8`
+```js
+import { utf8 } from '@scintilla-network/keys/utils';
+```
+
+- `toHex(str: string): string` - Converts UTF-8 string to hex string
+- `toUint8Array(str: string): Uint8Array` - Converts UTF-8 string to Uint8Array
+- `fromHex(hex: string): string` - Converts hex string to UTF-8 string
+- `fromUint8Array(uint8Array: Uint8Array): string` - Converts Uint8Array to UTF-8 string
+- `isUtf8(input: string | Uint8Array | ArrayBuffer): boolean` - Checks if input is a valid UTF-8 string
+
+### `varbigint`
+```js
+import { varbigint } from '@scintilla-network/keys/utils';
+```
+
+0x00-0xFA (0-250): Single byte values  
+0xFB + 2 bytes: 251-65535 (little-endian)  
+0xFC + 4 bytes: 65536-4294967295 (little-endian)  
+0xFD + 8 bytes: 4294967296-18446744073709551615 (little-endian)  
+0xFE + 16 bytes: 18446744073709551616 to 2^128-1 (little-endian)  
+0xFF + 32 bytes: Up to 2^256-1 (little-endian)
+
+- `encodeVarBigInt(num: bigint, format?: 'hex' | 'uint8array'): string | Uint8Array` - Encodes bigint to varbigint
+- `decodeVarBigInt(input: Uint8Array | string): { value: bigint; length: number }` - Decodes varbigint to bigint and returns the length of the buffer consumed.
+- `getEncodingLength(num: bigint): number` - Gets the minimum number of bytes needed to encode a given value.
+- `canEncode(num: bigint): boolean` - Checks if bigint can be encoded
+
+```js
+varbigint.encodeVarBigInt(100n); // Uint8Array([100])
+varbigint.decodeVarBigInt(new Uint8Array([100])); // { value: 100n, length: 1 }
+varbigint.getEncodingLength(100n); // 1
+varbigint.canEncode(100n); // true
+```
 
 ### `varint`
 
 ```typescript
 import { varint } from '@scintilla-network/keys/utils';
-const encoded = varint.encodeVarInt(100);
-console.log(encoded); // Uint8Array([100])
-const decoded = varint.decodeVarInt(encoded);
-console.log(decoded); // { value: 100, length: 1 }
 ```
 
-0x00-0xFC (0-252): Single byte values
-0xFD + 2 bytes: 253-65535 (little-endian)
-0xFE + 4 bytes: 65536-4294967295 (little-endian)
+0x00-0xFC (0-252): Single byte values  
+0xFD + 2 bytes: 253-65535 (little-endian)  
+0xFE + 4 bytes: 65536-4294967295 (little-endian)  
 0xFF + 8 bytes: 4294967296-18446744073709551615 (little-endian)
 
-### `varbigint`
+- `encodeVarInt(num: number | bigint, format?: 'hex' | 'uint8array'): string | Uint8Array` - Encodes number or bigint to varint
+- `decodeVarInt(input: Uint8Array | string): { value: number | bigint; length: number }` - Decodes varint to number or bigint
+- `getEncodingLength(num: number | bigint): number` - Gets the encoding length of number or bigint
+- `canEncode(num: number | bigint): boolean` - Checks if number or bigint can be encoded
 
-```typescript
-import { varbigint } from '@scintilla-network/keys/utils';
-const encoded = varbigint.encodeVarBigInt(100);
-console.log(encoded); // Uint8Array([100])
-const decoded = varbigint.decodeVarBigInt(encoded);
-console.log(decoded); // { value: 100n, length: 1 }
-```
-
-0x00-0xFA (0-250): Single byte values
-0xFB + 2 bytes: 251-65535 (little-endian)
-0xFC + 4 bytes: 65536-4294967295 (little-endian)
-0xFD + 8 bytes: 4294967296-18446744073709551615 (little-endian)
-0xFE + 16 bytes: Up to 2^128-1 (little-endian)
-0xFF + 32 bytes: Up to 2^256-1 (little-endian)
-
-```typescript
+```js
+varint.encodeVarInt(100); // Uint8Array([100])
+varint.decodeVarInt(new Uint8Array([100])); // { value: 100, length: 1 }
+varint.getEncodingLength(100); // 1
+varint.canEncode(100); // true
 ```
 
 ## Related Packages
