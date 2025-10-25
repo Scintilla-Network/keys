@@ -66,4 +66,21 @@ describe('uint8array', () => {
         expect(uint8array.isUint8Array(null)).toBe(false);
         expect(uint8array.isUint8Array(undefined)).toBe(false);
     });
+    it('should compare two uint8arrays', () => {
+        const array1 = new Uint8Array([1, 2, 3]);
+        const array2 = new Uint8Array([1, 2, 3]);
+        expect(uint8array.equals(array1, array2)).toBe(true);
+        const array3 = new Uint8Array([1, 2, 4]);
+        expect(uint8array.equals(array1, array3)).toBe(false);
+
+        // Test with large arrays to ensure the Uint32Array check as well
+        const array4 = uint8array.fromHex('7b226d657373616765223a2248656c6c6f2c20576f726c6421222c226172726179223a223438363536633663366632633230353736663732366336343231222c2261223a7b2262223a3132332c2263223a22313233227d7d');
+        const array5 = uint8array.fromHex('7b226d657373616765223a2248656c6c6f2c20576f726c6421222c226172726179223a223438363536633663366632633230353736663732366336343231222c2261223a7b2262223a3132332c2263223a22313233227d7d');
+        expect(uint8array.equals(array4, array5)).toBe(true);
+        // Test on the remaining
+        const array6 = uint8array.fromHex('7b226d657373616765223a2248656c6c6f2c20576f726c6421222c226172726179223a223438363536633663366632633230353736663732366336343231222c2261223a7b2262223a3132332c2263223a22313233327d7d');
+        expect(uint8array.equals(array4, array6)).toBe(false);
+        const array7 = uint8array.fromHex('7b236d657373616765223a2248656c6c6f2c20576f726c6421222c226172726179223a223438363536633663366632633230353736663732366336343231222c2261223a7b2262223a3132332c2263223a22313233227d7d');
+        expect(uint8array.equals(array4, array7)).toBe(false);
+    });
 });

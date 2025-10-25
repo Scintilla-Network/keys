@@ -334,6 +334,7 @@ import { uint8array } from '@scintilla-network/keys/utils';
 - `toBigInt(bytes: Uint8Array): bigint` - Converts Uint8Array to bigint
 - `fromBigInt(bigint: bigint): Uint8Array` - Converts bigint to Uint8Array
 - `stringify(bytes: Uint8Array): string` - Converts Uint8Array to string
+- `equals(bytes1: Uint8Array, bytes2: Uint8Array): boolean` - Checks if two Uint8Arrays are equals
 
 ### `utf8`
 ```js

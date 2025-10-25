@@ -107,7 +107,42 @@ const uint8array = {
      */
     stringify: (array) => {
         // We want the bytes number 8 representation as a string (e.g: [127, 0, 0, 0, 0, 0, 0, 0])
-        return array.map(byte => byte.toString()).join(',');
+        return array.map(byte => Number(byte)).join(',');
+    },
+    /**
+     * Compare two Uint8Arrays for equality
+     * @param {Uint8Array} array1 - The first Uint8Array to compare
+     * @param {Uint8Array} array2 - The second Uint8Array to compare
+     * @returns {boolean} Whether the two Uint8Arrays are equal
+     */
+    equals: (array1, array2) => {
+        // If same reference, return true
+        if (array1 === array2) return true;
+
+        // Can we quit early ? 
+        if (!array1 || !array2 || array1.length !== array2.length) return false;
+
+        const len = array1.length;
+        const fullChunks = Math.floor(len / 4);
+        
+        // We use Uint32Array to compare 32-bit chunks for efficiency
+        const view1 = new Uint32Array(array1.buffer, array1.byteOffset, fullChunks);
+        const view2 = new Uint32Array(array2.buffer, array2.byteOffset, fullChunks);
+
+        for (let i = 0; i < fullChunks; i++) {
+            if (view1[i] !== view2[i]) {
+                return false;
+            }
+        }
+
+        // Then, we individually compare the remaining bytes
+        for (let i = fullChunks * 4; i < len; i++) {
+            if (array1[i] !== array2[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
    
