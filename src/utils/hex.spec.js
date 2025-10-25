@@ -23,4 +23,8 @@ describe('hex', () => {
         const string = hex.toString('48656c6c6f2c20576f726c6421');
         expect(string).toBe('Hello, World!');
     });
+    it('should convert uint8array to hex', () => {
+        const input = new Uint8Array([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]);
+        expect(hex.toHex(input)).toBe('48656c6c6f2c20576f726c6421');
+    });
 });

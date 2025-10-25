@@ -46,6 +46,14 @@ const hex = {
         }
     },
     /**
+     * Convert Uint8Array to hex string
+     * @param {Uint8Array} input - The input to convert
+     * @returns {string} The hex string
+     */
+    toHex: (input) => {
+        return uint8array.toHex(input);
+    },
+    /**
      * Convert hex string to string
      * @param {string | Uint8Array} input - The hex string to convert
      * @returns {string | undefined} The string
