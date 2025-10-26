@@ -78,7 +78,21 @@ const json = {
      */
     sortedJsonByKeyStringify: (obj) => {
         return json.stringify(json.sortObjectByKey(obj));
-    }
+    },
+
+    /**
+     * Excludes fields from an object and returns a JSON string
+     * @param {any} obj - The object to exclude fields from
+     * @param {string[]} fieldsToExclude - The fields to exclude
+     * @returns {string} - The JSON string
+     */
+    excludingStringify: (obj, fieldsToExclude = []) => {
+        const excludedObj = { ...obj };
+        fieldsToExclude.forEach(field => {
+            delete excludedObj[field];
+        });
+        return json.stringify(excludedObj);
+    },
 }
 
 export default json;

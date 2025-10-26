@@ -72,4 +72,13 @@ describe('json', () => {
         expect(json.sortedJsonByKeyStringify(input)).toEqual('{"a":1,"b":2}');
     });
    });
+   describe('excludingStringify', () => {
+    it('should exclude fields from an object and return a JSON string', () => {
+        const input = {
+            b: 2,
+            a: 1,
+        };
+        expect(json.excludingStringify(input, ['b'])).toEqual('{"a":1}');
+    });
+   });
 });

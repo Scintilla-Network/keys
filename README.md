@@ -308,6 +308,7 @@ import { json } from '@scintilla-network/keys/utils';
 - `parse(str: string, options?: { shouldBigInt?: boolean; shouldUint8Array?: boolean }): any` - Parses JSON string
 - `sortObjectByKey(obj: any): any` - Sorts object by key
 - `sortedJsonByKeyStringify(obj: any): string` - Sorts object by key and stringifies object
+- `excludingStringify(obj: any, fieldsToExclude?: string[]): string` - Excludes fields from an object and returns a JSON string
 
 ### `moniker`
 
