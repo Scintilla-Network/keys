@@ -1,6 +1,6 @@
 {
   "name": "@scintilla-network/keys",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Key management and derivation library for Scintilla Network",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -80,6 +80,6 @@
     "@scintilla-network/signatures": "1.2.1"
   },
   "devDependencies": {
-    "@scintilla-network/litest": "1.3.0"
+    "@scintilla-network/litest": "1.4.1"
   }
 }
